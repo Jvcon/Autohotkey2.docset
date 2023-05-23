@@ -28,6 +28,8 @@ jobs:
         run: |
           cp ${{ github.workspace }}/main/dashing.json ./dashing.json
           dashing build
+          mkdir ${{ github.workspace }}/output
+          mkdir ${{ github.workspace }}/en_us
           mv ./AutoHotkey2.docset ${{ github.workspace }}/en_us/AutoHotkey2.docset
         working-directory: doc2en/docs
       - name: Compress Docset(EN)
