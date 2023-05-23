@@ -28,15 +28,16 @@ jobs:
         run: |
           cp ${{ github.workspace }}/main/dashing.json ./dashing.json
           dashing build
+          mkdir ${{ github.workspace }}/output
+          mv ./AutoHotkey2.docset ${{ github.workspace }}/en_us/
         working-directory: doc2en/docs
       - name: Compress Docset(EN)
-        uses: a7ul/tar-action@v1.1.0
-        id: compressen
+        uses: TheDoctor0/zip-release@0.7.1
         with:
-          command: c
-          files: |
-            ./doc2en/docs/AutoHotkey2.docset
-          outPath: ./output/AutoHotkey2-en_us.tgz
+          type: 'tar'
+          filename: 'AutoHotkey2-en_us.tgz'
+          directory: './output'
+          path: ${{ github.workspace }}/en_us
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.2
         with: 
