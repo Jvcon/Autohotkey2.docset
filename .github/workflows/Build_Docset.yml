@@ -23,7 +23,7 @@ jobs:
       - name: Install Dashing
         run: |
           go version
-          go install github.com/technosophos/dashing
+          go install github.com/technosophos/dashing@latest
       - name: Build Docset(EN)
         run: |
           cp main/dashing.json ./dashing.json
