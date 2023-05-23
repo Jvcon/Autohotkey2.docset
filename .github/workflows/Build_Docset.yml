@@ -37,8 +37,8 @@ jobs:
         with:
           type: 'tar'
           filename: 'AutoHotkey2-en_us.tgz'
-          directory: ./en_us
-          path: /AutoHotkey2.docset
+          directory: ${{ github.workspace }}/en_us
+          path: AutoHotkey2.docset
       - name: Move Compress
         run: |
           mv ./en_us/*tgz ./output/
