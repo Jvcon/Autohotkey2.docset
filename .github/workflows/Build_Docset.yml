@@ -1,0 +1,44 @@
+name: Build Docset
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: Build Docset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '>=1.4'
+      - name: Checkout
+        uses: actions/checkout@v3
+        with: 
+          path: main
+      - name: Checkout Docs(EN)
+        uses: actions/checkout@v3
+        with:
+          repository: AutoHotkey/AutoHotkeyDocs
+          ref: v2
+          path: doc2en
+      - name: Install Dashing
+        run: |
+          go version
+          go install github.com/technosophos/dashing
+      - name: Build Docset(EN)
+        run: |
+          cp main/dashing.json ./dashing.json
+          dashing build
+        working-directory: doc2en/docs
+      - name: Compress Docset(EN)
+        uses: a7ul/tar-action@v1.1.0
+        id: compressen
+        with:
+          command: c
+          files: |
+            ./doc2en/docs/AutoHotkey2.docset
+          outPath: ./output/AutoHotkey2-en_us.tgz
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with: 
+          name: Artifact
+          path: ${{ github.workspace }}/output/*
