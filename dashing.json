@@ -7,14 +7,12 @@
             "type": "Function",
             "matchpath": "lib/.*\\.htm"
         },
-        "li a" :{
+        "li a": {
             "type": "Category",
             "matchpath": "index.htm"
         }
     },
-    "ignore": [
-    ],
-    "icon32x32": "icon@2x.png",
-    "allowJS": true,
-    "ExternalURL": "https://wyagd001.github.io/v2/docs/index.htm"
+    "ignore": [],
+    "icon32x32": "icons.png",
+    "allowJS": true
 }

@@ -25,6 +25,7 @@ jobs:
       - name: Build Docset(EN)
         run: |
           cp ${{ github.workspace }}/dashing.json ./dashing.json
+          cp ${{ github.workspace }}/icons.png ./icons.png
           dashing build
           mkdir ${{ github.workspace }}/output
           mkdir ${{ github.workspace }}/en_us
