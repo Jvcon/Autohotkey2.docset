@@ -29,6 +29,7 @@ jobs:
           dashing build
           mkdir ${{ github.workspace }}/output
           mkdir ${{ github.workspace }}/en_us
+          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png 
           mv ./AutoHotkey2.docset ${{ github.workspace }}/en_us/AutoHotkey2.docset
         working-directory: doc2en/docs
       - name: Compress Docset(EN)
