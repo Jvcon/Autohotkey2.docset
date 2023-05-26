@@ -18,6 +18,12 @@ jobs:
           repository: AutoHotkey/AutoHotkeyDocs
           ref: v2
           path: doc2en
+      - name: Checkout Docs(ZH)
+        uses: actions/checkout@v3
+        with:
+          repository: wyagd001/wyagd001.github.io
+          ref: master
+          path: doc2zh
       - name: Install Dashing
         run: |
           go version
@@ -28,20 +34,34 @@ jobs:
           cp ${{ github.workspace }}/icons.png ./icons.png
           dashing build
           mkdir ${{ github.workspace }}/output
-          mkdir ${{ github.workspace }}/en_us
           rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png 
-          mv ./AutoHotkey2.docset ${{ github.workspace }}/en_us/AutoHotkey2.docset
         working-directory: doc2en/docs
       - name: Compress Docset(EN)
         uses: TheDoctor0/zip-release@0.7.1
         with:
           type: 'tar'
           filename: 'AutoHotkey2-en_us.tgz'
-          directory: ${{ github.workspace }}/en_us
+          directory: ${{ github.workspace }}/doc2en/docs
+          path: AutoHotkey2.docset
+      - name: Build Docset(ZH)
+        run: |
+          cp ${{ github.workspace }}/dashing.json ./dashing.json
+          cp ${{ github.workspace }}/icons.png ./icons.png
+          dashing build
+          mkdir ${{ github.workspace }}/output
+          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png 
+        working-directory: doc2zh/v2/docs
+      - name: Compress Docset(ZH)
+        uses: TheDoctor0/zip-release@0.7.1
+        with:
+          type: 'tar'
+          filename: 'AutoHotkey2-zh_cn.tgz'
+          directory: ${{ github.workspace }}/doc2zh/v2/docs
           path: AutoHotkey2.docset
       - name: Move Compress
         run: |
-          mv ./en_us/*tgz ./output/
+          mv ./doc2en/docs/*tgz ./output/
+          mv ./doc2zh/v2/docs/*.tgz ./output/
       - name: Upload Artifact
         uses: actions/upload-artifact@v3.1.2
         with: 
