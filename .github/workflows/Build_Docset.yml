@@ -1,5 +1,19 @@
 name: Build Docset
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      new:
+        description: "Is it new version?(set 'false' if not)"
+        required: true
+        type: string
+      us_en:
+        description: "English version"
+        required: true
+        type: boolean
+      zh_cn:
+        description: "Simple Chinese version"
+        required: true
+        type: boolean
 
 jobs:
   build:
@@ -9,17 +23,23 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: '>=1.4'
+          go-version: ">=1.4"
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
       - name: Checkout
         uses: actions/checkout@v3
       - name: Checkout Docs(EN)
         uses: actions/checkout@v3
+        if: ${{ inputs.us_en }}
         with:
           repository: AutoHotkey/AutoHotkeyDocs
           ref: v2
           path: doc2en
       - name: Checkout Docs(ZH)
         uses: actions/checkout@v3
+        if: ${{ inputs.zh_cn }}
         with:
           repository: wyagd001/wyagd001.github.io
           ref: master
@@ -29,31 +49,40 @@ jobs:
           go version
           go install github.com/technosophos/dashing@latest
       - name: Build Docset(EN)
+        if: ${{ inputs.us_en }}
         run: |
           cp ${{ github.workspace }}/dashing.json ./dashing.json
           cp ${{ github.workspace }}/icons.png ./icons.png
           dashing build
-          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png 
+          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png
         working-directory: doc2en/docs
       - name: Compress Docset(EN)
         uses: TheDoctor0/zip-release@0.7.1
+        if: ${{ inputs.us_en }}
         with:
-          type: 'tar'
-          filename: 'AutoHotkey2-en_us.tgz'
+          type: "tar"
+          filename: "AutoHotkey2-en_us.tgz"
           directory: ${{ github.workspace }}/doc2en/docs
           path: AutoHotkey2.docset
       - name: Build Docset(ZH)
+        if: ${{ inputs.zh_cn }}
         run: |
           cp ${{ github.workspace }}/dashing.json ./dashing.json
           cp ${{ github.workspace }}/icons.png ./icons.png
           dashing build
-          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png 
+          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png
         working-directory: doc2zh/v2/docs
+      - name: Beautify Docset(ZH)
+        if: ${{ inputs.zh_cn }}
+        run: |
+          pip install -r requirements.txt
+          python3 beautifulsoup.py ./doc2zh/v2/docs/AutoHotkey2.docset
       - name: Compress Docset(ZH)
         uses: TheDoctor0/zip-release@0.7.1
+        if: ${{ inputs.zh_cn }}
         with:
-          type: 'tar'
-          filename: 'AutoHotkey2-zh_cn.tgz'
+          type: "tar"
+          filename: "AutoHotkey2-zh_cn.tgz"
           directory: ${{ github.workspace }}/doc2zh/v2/docs
           path: AutoHotkey2.docset
       - name: Move Compress
@@ -61,8 +90,62 @@ jobs:
           mkdir ${{ github.workspace }}/output
           mv ./doc2en/docs/*tgz ./output/
           mv ./doc2zh/v2/docs/*.tgz ./output/
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3.1.2
-        with: 
-          name: Artifact
-          path: ${{ github.workspace }}/output/*
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          default_bump: ${{ inputs.new }}
+      - name: Update Release
+        uses: softprops/action-gh-release@v0.1.15
+        id: update_release
+        if: ${{ inputs.new == false}}
+        with:
+          tag_name: ${{ steps.tag_version.outputs.previous_version }}
+          files: |
+            output/AutoHotkey2-zh_cn.tgz
+            output/AutoHotkey2-us_en.tgz
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: New Release
+        uses: softprops/action-gh-release@v0.1.15
+        id: upload_release
+        if: ${{ inputs.new }}
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_version }}
+          files: |
+            output/AutoHotkey2-*.tgz
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Update xml(EN)
+        uses: Mudlet/xmlstarlet-action@v1.1
+        id: xml_us_en
+        if: ${{ inputs.us_en }}
+        with:
+          args: ed -L --update "/entry/url" -v ${{ fromJSON(steps.upload_release.outputs.assets)[0].browser_download_url }} "us_en/Autohotkey2.xml"
+      - name: Update xml version(EN)
+        uses: Mudlet/xmlstarlet-action@v1.1
+        id: xml_us_en_ver
+        if: ${{ inputs.us_en }}
+        with:
+          args: ed -L --update "/entry/version" -v ${{ steps.tag_version.outputs.new_version }} "us_en/Autohotkey2.xml"
+      - name: Update xml(ZH)
+        uses: Mudlet/xmlstarlet-action@v1.1
+        id: xml_zh_cn
+        if: ${{ inputs.zh_cn }}
+        with:
+          args: ed -L --update "/entry/url" -v ${{ fromJSON(steps.upload_release.outputs.assets)[1].browser_download_url }} "zh_cn/Autohotkey2.xml"
+      - name: Update xml version(ZH)
+        uses: Mudlet/xmlstarlet-action@v1.1
+        id: xml_zh_cn_ver
+        if: ${{ inputs.zh_cn }}
+        with:
+          args: ed -L --update "/entry/version" -v ${{ steps.tag_version.outputs.new_version }} "zh_cn/Autohotkey2.xml"
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v9.1.3
+        if: ${{ inputs.new }}
+        with:
+          message: "feat: update Autohotkey2.xml"
+          committer_name: GitHub Actions
+          committer_email: 41898282+github-actions[bot]@users.noreply.github.com
+          add: '["us_en/Autohotkey2.xml", "zh_cn/Autohotkey2.xml"]'
