@@ -1,0 +1,8 @@
+[submodule "doc2en"]
+	path = doc2en
+	url = https://github.com/AutoHotkey/AutoHotkeyDocs.git
+	branch = v2
+[submodule "doc2zh"]
+	path = doc2zh
+	url = https://github.com/wyagd001/wyagd001.github.io.git
+	branch = master
