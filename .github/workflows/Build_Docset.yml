@@ -30,20 +30,8 @@ jobs:
           python-version: "3.10"
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Checkout Docs(EN)
-        uses: actions/checkout@v3
-        if: ${{ inputs.us_en }}
         with:
-          repository: AutoHotkey/AutoHotkeyDocs
-          ref: v2
-          path: doc2en
-      - name: Checkout Docs(ZH)
-        uses: actions/checkout@v3
-        if: ${{ inputs.zh_cn }}
-        with:
-          repository: wyagd001/wyagd001.github.io
-          ref: master
-          path: doc2zh
+          submodules: recursive
       - name: Install Dashing
         run: |
           go version
