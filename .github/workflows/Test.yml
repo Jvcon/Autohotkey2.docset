@@ -1,0 +1,64 @@
+name: Test
+on: workflow_dispatch
+
+jobs:
+  build:
+    name: Build Docset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ">=1.4"
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Checkout Docs(EN)
+        uses: actions/checkout@v3
+        with:
+          repository: AutoHotkey/AutoHotkeyDocs
+          ref: v2
+          path: doc2en
+      - name: Checkout Docs(ZH)
+        uses: actions/checkout@v3
+        with:
+          repository: wyagd001/wyagd001.github.io
+          ref: master
+          path: doc2zh
+      - name: Install Dashing
+        run: |
+          go version
+          go install github.com/technosophos/dashing@latest
+      - name: Build Docset(EN)
+        run: |
+          cp ${{ github.workspace }}/dashing.json ./dashing.json
+          cp ${{ github.workspace }}/icons.png ./icons.png
+          dashing build
+          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png
+        working-directory: doc2en/docs
+      - name: Build Docset(ZH)
+        run: |
+          cp ${{ github.workspace }}/dashing.json ./dashing.json
+          cp ${{ github.workspace }}/icons.png ./icons.png
+          dashing build
+          rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png
+        working-directory: doc2zh/v2/docs
+      - name: Beautify Docset(ZH)
+        run: |
+          pip install -r requirements.txt
+          python3 beautifulsoup.py ./doc2zh/v2/docs/AutoHotkey2.docset
+      - name: Move
+        run: |
+          mkdir ${{ github.workspace }}/output
+          mkdir ${{ github.workspace }}/output/en_us
+          mkdir ${{ github.workspace }}/output/zh_cn
+          mv ./doc2en/docs/AutoHotkey2.docset ./output/en_us
+          mv ./doc2zh/v2/docs/AutoHotkey2.docset ./output/zh_cn
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.1.2
+        with:
+          name: Artifact
+          path: ${{ github.workspace }}/output/*
