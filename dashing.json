@@ -1,18 +1,35 @@
 {
-    "name": "AutoHotkey2",
-    "package": "AutoHotkey2",
-    "index": "index.htm",
-    "selectors": {
-        "h1": {
-            "type": "Function",
-            "matchpath": "lib/.*\\.htm"
-        },
-        "li a": {
-            "type": "Category",
-            "matchpath": "index.htm"
-        }
-    },
-    "ignore": [],
-    "icon32x32": "icons.png",
-    "allowJS": true
+  "name": "AutoHotkey2",
+  "package": "AutoHotkey2",
+  "index": "index.htm",
+  "externalURL": "https://www.autohotkey.com/docs/v2/",
+  "selectors": {
+    "h1": [
+      {
+        "type": "Function",
+        "matchpath": "lib/.*\\.htm"
+      },
+      {
+        "type": "Category",
+        "matchpath": "misc/.*\\.htm"
+      },
+      {
+        "type": "Category",
+        "matchpath": "^(Variables|Program|Concepts|Language|Functions|Objects|KeyList|Hotkeys|Hotstrings|Remap|Labels|Threads|AHKL_DBGPClients|Editors|Ahk2ExeDirectives).htm$"
+      }
+    ],
+    "h2:not(#toc)": [
+      {
+        "type": "Sample",
+        "matchpath": "scripts/.*\\.htm"
+      }
+    ],
+    "h2#Parameters + dl dt": {
+      "type": "Parameter",
+      "matchpath": "lib/.*\\.htm"
+    }
+  },
+  "ignore": ["Acknowledgements", "ChangeLog", "howto"],
+  "icon32x32": "icons.png",
+  "allowJS": true
 }
