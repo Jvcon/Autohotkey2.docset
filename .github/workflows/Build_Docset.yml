@@ -37,14 +37,14 @@ jobs:
           go version
           go install github.com/technosophos/dashing@latest
       - name: Initial Config(EN)
-          id: packageJson
-          uses: RadovanPelka/github-action-json@main
-          with:
-            path: "dashing.json" # default value
-            replaceWith: |
-              {
-                "externalURL": "https://www.autohotkey.com/docs/v2/"
-              }
+        id: dashconfigen
+        uses: RadovanPelka/github-action-json@main
+        with:
+          path: "dashing.json" # default value
+          replaceWith: |
+            {
+              "externalURL": "https://www.autohotkey.com/docs/v2/"
+            }
       - name: Build Docset(EN)
         if: ${{ inputs.us_en }}
         run: |
@@ -63,14 +63,14 @@ jobs:
           directory: ${{ github.workspace }}/doc2en/docs
           path: AutoHotkey2.docset
       - name: Initial Config(ZH)
-          id: packageJson
-          uses: RadovanPelka/github-action-json@main
-          with:
-            path: "dashing.json" # default value
-            replaceWith: |
-              {
-                "externalURL": "https://wyagd001.github.io/v2/docs/"
-              }
+        id: dashconfigzh
+        uses: RadovanPelka/github-action-json@main
+        with:
+          path: "dashing.json" # default value
+          replaceWith: |
+            {
+              "externalURL": "https://wyagd001.github.io/v2/docs/"
+            }
       - name: Build Docset(ZH)
         if: ${{ inputs.zh_cn }}
         run: |
@@ -157,7 +157,7 @@ jobs:
           replaceWith: |
             {
               "version": "${{ steps.tag_version.outputs.new_version }}"
-            } 
+            }
       - name: Add & Commit
         uses: EndBug/add-and-commit@v9.1.3
         if: ${{ inputs.new }}

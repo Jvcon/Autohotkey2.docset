@@ -33,14 +33,14 @@ jobs:
           go version
           go install github.com/technosophos/dashing@latest
       - name: Initial Config(EN)
-          id: packageJson
-          uses: RadovanPelka/github-action-json@main
-          with:
-            path: "dashing.json" # default value
-            replaceWith: |
-              {
-                "externalURL": "https://www.autohotkey.com/docs/v2/"
-              }
+        id: dashconfigen
+        uses: RadovanPelka/github-action-json@main
+        with:
+          path: "dashing.json"
+          replaceWith: |
+            {
+              "externalURL": "https://www.autohotkey.com/docs/v2/"
+            }
       - name: Build Docset(EN)
         run: |
           cp ${{ github.workspace }}/dashing.json ./dashing.json
@@ -50,14 +50,14 @@ jobs:
           rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png
         working-directory: doc2en/docs
       - name: Initial Config(ZH)
-          id: packageJson
-          uses: RadovanPelka/github-action-json@main
-          with:
-            path: "dashing.json" # default value
-            replaceWith: |
-              {
-                "externalURL": "https://wyagd001.github.io/v2/docs/"
-              }
+        id: dashconfigzh
+        uses: RadovanPelka/github-action-json@main
+        with:
+          path: "dashing.json" # default value
+          replaceWith: |
+            {
+              "externalURL": "https://wyagd001.github.io/v2/docs/"
+            }
       - name: Build Docset(ZH)
         run: |
           cp ${{ github.workspace }}/dashing.json ./dashing.json
