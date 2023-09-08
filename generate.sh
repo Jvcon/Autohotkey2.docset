@@ -10,11 +10,13 @@ build_en() {
     rm -rf AutoHotkey2.docset
     dashing build
     rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png
-    if [ "$1" = "build" ]; then
+    case "$mode" in
+    build)
         echo "Building a compress"
         tar -czf AutoHotkey2-en_us.tgz AutoHotkey2.docset
         mv AutoHotkey2-en_us.tgz $Output_DIR
-    else
+        ;;
+    test)
         if [ -d "$TAR_EN_DIR" ]; then
             echo "The '$TAR_EN_DIR' folder exists. Deleting..."
             # Delete the folder
@@ -22,7 +24,14 @@ build_en() {
         fi
         echo "Moving docset folder to test"
         mv -f AutoHotkey2.docset $TAR_EN_DIR
-    fi
+        ;;
+    all | "") ;;
+
+    *)
+        echo "Invalid"
+        exit 1
+        ;;
+    esac
     echo "Cleaning..."
     git clean -fd
 }
@@ -37,11 +46,13 @@ build_zh() {
     dashing build
     rm ./AutoHotkey2.docset/Contents/Resources/Documents/icons.png
     python3 $BASE_DIR/beautifulsoup.py $SRC_ZH_DIR/v2/docs/AutoHotkey2.docset
-    if [ "$1" = "build" ]; then
+    case "$mode" in
+    build)
         echo "Building a compress"
         tar -czf AutoHotkey2-zh_cn.tgz AutoHotkey2.docset
         mv AutoHotkey2-zh_cn.tgz $Output_DIR
-    else
+        ;;
+    test)
         if [ -d "$TAR_ZH_DIR" ]; then
             echo "The '$TAR_ZH_DIR' folder exists. Deleting..."
             # Delete the folder
@@ -49,7 +60,14 @@ build_zh() {
         fi
         echo "Moving docset folder to test"
         mv -f AutoHotkey2.docset $TAR_ZH_DIR
-    fi
+        ;;
+    all | "") ;;
+
+    *)
+        echo "Invalid"
+        exit 1
+        ;;
+    esac
     echo "Cleaning..."
     git clean -fd
 }
@@ -59,6 +77,9 @@ build_zh() {
 if [ -f .env ]; then
     export $(cat .env | sed 's/#.*//g' | xargs)
 fi
+
+mode=$1
+lang=$2
 
 BASE_DIR=$(
     cd $(dirname $0)
@@ -119,7 +140,7 @@ for i in "${submodules[@]}"; do
     git submodule update --remote ./$i
 done
 
-case "$2" in
+case "$lang" in
 zh) build_zh ;;
 en) build_en ;;
 all | "")
